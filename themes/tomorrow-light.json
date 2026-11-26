@@ -1,0 +1,23 @@
+{
+  "meta": {
+    "name": "Tomorrow Light",
+    "slug": "tomorrow-light",
+    "dark": false
+  },
+  "palette": {
+    "bg": "ffffff",
+    "blue": "4271ae",
+    "comment": "000000",
+    "cyan": "3e999f",
+    "fg": "4d4d4c",
+    "green": "718c00",
+    "lavender": "8959a8",
+    "maroon": "c82829",
+    "mauve": "8959a8",
+    "orange": "d97014",
+    "red": "c82829",
+    "selection": "efefef",
+    "teal": "3e999f",
+    "yellow": "eab700"
+  }
+}

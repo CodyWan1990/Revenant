@@ -1,0 +1,8 @@
+#!/bin/sh
+# Test stand-in for pkill: wallpaper.sh stops the running xwallpaper before
+# starting another, and in a test that would be the real session's daemon.
+# Anything aimed at xwallpaper is logged instead; the rest goes to pkill.
+for a in "$@"; do
+    [ "$a" = xwallpaper ] && { echo "pkill $*" >> "$HOME/xwallpaper.log"; exit 1; }
+done
+PATH=$(printf '%s' "$PATH" | sed "s|$(dirname "$0"):||") exec pkill "$@"

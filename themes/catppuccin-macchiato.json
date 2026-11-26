@@ -1,0 +1,23 @@
+{
+  "meta": {
+    "name": "Catppuccin Macchiato",
+    "slug": "catppuccin-macchiato",
+    "dark": true
+  },
+  "palette": {
+    "bg": "24273a",
+    "blue": "8aadf4",
+    "comment": "5b6078",
+    "cyan": "8bd5ca",
+    "fg": "cad3f5",
+    "green": "a6da95",
+    "lavender": "f5bde6",
+    "maroon": "ed8796",
+    "mauve": "f5bde6",
+    "orange": "eeae9a",
+    "red": "ed8796",
+    "selection": "363a4f",
+    "teal": "8bd5ca",
+    "yellow": "eed49f"
+  }
+}

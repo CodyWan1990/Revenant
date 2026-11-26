@@ -1,0 +1,23 @@
+{
+  "meta": {
+    "name": "Rosé Pine Moon",
+    "slug": "rose-pine-moon",
+    "dark": true
+  },
+  "palette": {
+    "bg": "232136",
+    "blue": "9ccfd8",
+    "comment": "6e6a86",
+    "cyan": "ea9a97",
+    "fg": "e0def4",
+    "green": "3e8fb0",
+    "lavender": "c4a7e7",
+    "maroon": "eb6f92",
+    "mauve": "c4a7e7",
+    "orange": "f09884",
+    "red": "eb6f92",
+    "selection": "2a273f",
+    "teal": "ea9a97",
+    "yellow": "f6c177"
+  }
+}

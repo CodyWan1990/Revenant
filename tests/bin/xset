@@ -1,0 +1,7 @@
+#!/bin/sh
+# Test stand-in for xset (scripts/run-qs-tests.sh puts tests/bin first on
+# PATH): logs each call, never touches the real X server. `q` reports the
+# defaults session.py would set.
+echo "$*" >> "$HOME/xset.log"
+[ "$1" = q ] && printf '  auto repeat:  on\n  auto repeat delay:  200    repeat rate:  35\nScreen Saver:\n  timeout:  0    cycle:  600\n  DPMS is Disabled\n'
+exit 0

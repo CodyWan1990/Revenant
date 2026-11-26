@@ -1,0 +1,23 @@
+{
+  "meta": {
+    "name": "Tokyo Night Moon",
+    "slug": "tokyo-night-moon",
+    "dark": true
+  },
+  "palette": {
+    "bg": "222436",
+    "blue": "82aaff",
+    "comment": "444a73",
+    "cyan": "86e1fc",
+    "fg": "c8d3f5",
+    "green": "c3e88d",
+    "lavender": "c099ff",
+    "maroon": "ff757f",
+    "mauve": "c099ff",
+    "orange": "ff9e7b",
+    "red": "ff757f",
+    "selection": "2f334d",
+    "teal": "86e1fc",
+    "yellow": "ffc777"
+  }
+}

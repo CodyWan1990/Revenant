@@ -1,0 +1,35 @@
+{
+  "name": "Hello",
+  "icon": "help",
+  "about": "An example: shows a greeting and a command's output; click it for a notification.",
+  "options": [
+    {
+      "key": "greeting",
+      "label": "Greeting",
+      "type": "text",
+      "fallback": "Hi"
+    },
+    {
+      "key": "command",
+      "label": "Command",
+      "type": "text",
+      "fallback": "whoami",
+      "description": "Its first line of output goes after the greeting."
+    },
+    {
+      "key": "intervalSec",
+      "label": "Run it every",
+      "type": "int",
+      "from": 5,
+      "to": 3600,
+      "suffix": "s",
+      "fallback": 60
+    },
+    {
+      "key": "showOutput",
+      "label": "Show the command's output",
+      "type": "bool",
+      "fallback": true
+    }
+  ]
+}

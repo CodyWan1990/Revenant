@@ -1,0 +1,23 @@
+{
+  "meta": {
+    "name": "Gruvbox Light",
+    "slug": "gruvbox-light",
+    "dark": false
+  },
+  "palette": {
+    "bg": "fbf1c7",
+    "blue": "458588",
+    "comment": "928374",
+    "cyan": "689d6a",
+    "fg": "3c3836",
+    "green": "98971a",
+    "lavender": "b16286",
+    "maroon": "cc241d",
+    "mauve": "b16286",
+    "orange": "d25e1f",
+    "red": "cc241d",
+    "selection": "ebdbb2",
+    "teal": "689d6a",
+    "yellow": "d79921"
+  }
+}

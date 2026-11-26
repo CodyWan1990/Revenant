@@ -1,0 +1,17 @@
+#!/bin/sh
+# Test stand-in for i3-msg (scripts/run-qs-tests.sh puts tests/bin first on
+# PATH). Queries and subscriptions (-t …) go to the real i3, read-only;
+# commands (resize, workspace, exec, …) are only logged, so no test can move,
+# resize or focus your real windows.
+case " $* " in
+    *" -t command "*|*" -t run_command "*) ;;   # a command spelled as a type: log it below
+    *" -t "*)
+        here=$(dirname "$(readlink -f "$0")")
+        for real in $(command -v -a i3-msg 2>/dev/null) /usr/bin/i3-msg; do
+            [ "$(dirname "$(readlink -f "$real")")" = "$here" ] && continue
+            exec "$real" "$@"
+        done
+        exit 1 ;;
+esac
+echo "$*" >> "$HOME/i3-msg.log"
+echo '[{"success":true}]'

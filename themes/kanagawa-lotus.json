@@ -1,0 +1,23 @@
+{
+  "meta": {
+    "name": "Kanagawa Lotus",
+    "slug": "kanagawa-lotus",
+    "dark": false
+  },
+  "palette": {
+    "bg": "f2ecbc",
+    "blue": "4d699b",
+    "comment": "8a8980",
+    "cyan": "597b75",
+    "fg": "545464",
+    "green": "6f894e",
+    "lavender": "b35b79",
+    "maroon": "c84053",
+    "mauve": "b35b79",
+    "orange": "a05849",
+    "red": "c84053",
+    "selection": "e5ddb0",
+    "teal": "597b75",
+    "yellow": "77713f"
+  }
+}

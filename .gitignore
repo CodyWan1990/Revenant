@@ -1,0 +1,8 @@
+# OpenWeatherMap key file from older versions (weather now uses Open-Meteo,
+# with no key): a stray copy must never be committed.
+weather.conf
+
+# User data lives in ~/.config/revenant/ (Paths.configDir), never here.
+settings.json
+# Python bytecode (the shell runs its scripts with -B, but not every caller does).
+__pycache__/

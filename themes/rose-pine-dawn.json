@@ -1,0 +1,23 @@
+{
+  "meta": {
+    "name": "Rosé Pine Dawn",
+    "slug": "rose-pine-dawn",
+    "dark": false
+  },
+  "palette": {
+    "bg": "faf4ed",
+    "blue": "56949f",
+    "comment": "9893a5",
+    "cyan": "d7827e",
+    "fg": "575279",
+    "green": "286983",
+    "lavender": "907aa9",
+    "maroon": "b4637a",
+    "mauve": "907aa9",
+    "orange": "cf8057",
+    "red": "b4637a",
+    "selection": "f2e9e1",
+    "teal": "d7827e",
+    "yellow": "ea9d34"
+  }
+}

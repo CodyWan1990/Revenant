@@ -1,0 +1,23 @@
+{
+  "meta": {
+    "name": "One Light",
+    "slug": "one-light",
+    "dark": false
+  },
+  "palette": {
+    "bg": "fafafa",
+    "blue": "4078f2",
+    "comment": "4f525e",
+    "cyan": "0184bc",
+    "fg": "383a42",
+    "green": "50a14f",
+    "lavender": "a626a4",
+    "maroon": "e45649",
+    "mauve": "a626a4",
+    "orange": "d26d25",
+    "red": "e45649",
+    "selection": "f0f0f1",
+    "teal": "0184bc",
+    "yellow": "c18401"
+  }
+}

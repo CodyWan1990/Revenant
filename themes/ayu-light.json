@@ -1,0 +1,23 @@
+{
+  "meta": {
+    "name": "Ayu Light",
+    "slug": "ayu-light",
+    "dark": false
+  },
+  "palette": {
+    "bg": "f8f9fa",
+    "blue": "3199e1",
+    "comment": "686868",
+    "cyan": "46ba94",
+    "fg": "42474c",
+    "green": "6cbf43",
+    "lavender": "9e75c7",
+    "maroon": "ea6c6d",
+    "mauve": "9e75c7",
+    "orange": "eb8a58",
+    "red": "ea6c6d",
+    "selection": "e4e6e9",
+    "teal": "46ba94",
+    "yellow": "eca944"
+  }
+}

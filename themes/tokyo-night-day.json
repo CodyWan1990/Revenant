@@ -1,0 +1,23 @@
+{
+  "meta": {
+    "name": "Tokyo Night Day",
+    "slug": "tokyo-night-day",
+    "dark": false
+  },
+  "palette": {
+    "bg": "e1e2e7",
+    "blue": "2e7de9",
+    "comment": "a1a6c5",
+    "cyan": "007197",
+    "fg": "3760bf",
+    "green": "587539",
+    "lavender": "9854f1",
+    "maroon": "f52a65",
+    "mauve": "9854f1",
+    "orange": "c04b52",
+    "red": "f52a65",
+    "selection": "d0d5e3",
+    "teal": "007197",
+    "yellow": "8c6c3e"
+  }
+}

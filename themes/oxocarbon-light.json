@@ -1,0 +1,23 @@
+{
+  "meta": {
+    "name": "Oxocarbon Light",
+    "slug": "oxocarbon-light",
+    "dark": false
+  },
+  "palette": {
+    "bg": "ffffff",
+    "blue": "0f62fe",
+    "comment": "c1c7cd",
+    "cyan": "007d79",
+    "fg": "161616",
+    "green": "198038",
+    "lavender": "d02670",
+    "maroon": "da1e28",
+    "mauve": "d02670",
+    "orange": "b44414",
+    "red": "da1e28",
+    "selection": "f2f4f8",
+    "teal": "007d79",
+    "yellow": "8e6a00"
+  }
+}

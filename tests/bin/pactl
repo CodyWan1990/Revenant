@@ -1,0 +1,3 @@
+#!/bin/sh
+# Test stand-in for pactl: logs, never changes the real volume.
+echo "$*" >> "$HOME/pactl.log"

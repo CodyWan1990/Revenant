@@ -1,0 +1,23 @@
+{
+  "meta": {
+    "name": "Kanagawa Dragon",
+    "slug": "kanagawa-dragon",
+    "dark": true
+  },
+  "palette": {
+    "bg": "181616",
+    "blue": "8ba4b0",
+    "comment": "a6a69c",
+    "cyan": "8ea4a2",
+    "fg": "c5c9c5",
+    "green": "8a9a7b",
+    "lavender": "a292a3",
+    "maroon": "c4746e",
+    "mauve": "a292a3",
+    "orange": "c4937c",
+    "red": "c4746e",
+    "selection": "282727",
+    "teal": "8ea4a2",
+    "yellow": "c4b28a"
+  }
+}

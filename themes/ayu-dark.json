@@ -1,0 +1,23 @@
+{
+  "meta": {
+    "name": "Ayu Dark",
+    "slug": "ayu-dark",
+    "dark": true
+  },
+  "palette": {
+    "bg": "0b0e14",
+    "blue": "53bdfa",
+    "comment": "686868",
+    "cyan": "90e1c6",
+    "fg": "bfbdb6",
+    "green": "7fd962",
+    "lavender": "cda1fa",
+    "maroon": "ea6c73",
+    "mauve": "cda1fa",
+    "orange": "f28e61",
+    "red": "ea6c73",
+    "selection": "1e222a",
+    "teal": "90e1c6",
+    "yellow": "f9af4f"
+  }
+}

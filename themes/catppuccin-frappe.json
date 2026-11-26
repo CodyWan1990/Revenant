@@ -1,0 +1,23 @@
+{
+  "meta": {
+    "name": "Catppuccin Frappe",
+    "slug": "catppuccin-frappe",
+    "dark": true
+  },
+  "palette": {
+    "bg": "303446",
+    "blue": "8caaee",
+    "comment": "626880",
+    "cyan": "81c8be",
+    "fg": "c6d0f5",
+    "green": "a6d189",
+    "lavender": "f4b8e4",
+    "maroon": "e78284",
+    "mauve": "f4b8e4",
+    "orange": "e6a58a",
+    "red": "e78284",
+    "selection": "414559",
+    "teal": "81c8be",
+    "yellow": "e5c890"
+  }
+}

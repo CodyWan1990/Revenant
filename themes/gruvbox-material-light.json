@@ -1,0 +1,23 @@
+{
+  "meta": {
+    "name": "Gruvbox Material Light",
+    "slug": "gruvbox-material-light",
+    "dark": false
+  },
+  "palette": {
+    "bg": "fbf1c7",
+    "blue": "45707a",
+    "comment": "a89984",
+    "cyan": "4c7a5d",
+    "fg": "654735",
+    "green": "6c782e",
+    "lavender": "945e80",
+    "maroon": "c14a4a",
+    "mauve": "945e80",
+    "orange": "ba5e2a",
+    "red": "c14a4a",
+    "selection": "f4e8be",
+    "teal": "4c7a5d",
+    "yellow": "b47109"
+  }
+}

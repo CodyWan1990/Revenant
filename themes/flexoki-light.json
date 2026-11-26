@@ -1,0 +1,23 @@
+{
+  "meta": {
+    "name": "Flexoki Light",
+    "slug": "flexoki-light",
+    "dark": false
+  },
+  "palette": {
+    "bg": "fffcf0",
+    "blue": "205ea6",
+    "comment": "b7b5ac",
+    "cyan": "24837b",
+    "fg": "100f0f",
+    "green": "66800b",
+    "lavender": "a02f6f",
+    "maroon": "af3029",
+    "mauve": "a02f6f",
+    "orange": "ae5a15",
+    "red": "af3029",
+    "selection": "f2f0e5",
+    "teal": "24837b",
+    "yellow": "ad8301"
+  }
+}

@@ -1,0 +1,23 @@
+{
+  "meta": {
+    "name": "Nord Light",
+    "slug": "nord-light",
+    "dark": false
+  },
+  "palette": {
+    "bg": "eceff4",
+    "blue": "81a1c1",
+    "comment": "4c566a",
+    "cyan": "7bb3c3",
+    "fg": "414858",
+    "green": "96b17f",
+    "lavender": "b48ead",
+    "maroon": "bf616a",
+    "mauve": "b48ead",
+    "orange": "c28368",
+    "red": "bf616a",
+    "selection": "e5e9f0",
+    "teal": "7bb3c3",
+    "yellow": "c5a565"
+  }
+}

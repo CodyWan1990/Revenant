@@ -1,0 +1,5 @@
+#!/bin/sh
+# Test stand-in for xwallpaper (scripts/dev/run-qs-tests.sh puts tests/bin
+# first on PATH): logs each call, never draws on the real X server.
+echo "$*" >> "$HOME/xwallpaper.log"
+exit 0

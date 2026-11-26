@@ -1,0 +1,23 @@
+{
+  "meta": {
+    "name": "GitHub Dark",
+    "slug": "github-dark",
+    "dark": true
+  },
+  "palette": {
+    "bg": "0d1117",
+    "blue": "58a6ff",
+    "comment": "6e7681",
+    "cyan": "39c5cf",
+    "fg": "e6edf3",
+    "green": "3fb950",
+    "lavender": "bc8cff",
+    "maroon": "ff7b72",
+    "mauve": "bc8cff",
+    "orange": "e88a4a",
+    "red": "ff7b72",
+    "selection": "161b22",
+    "teal": "39c5cf",
+    "yellow": "d29922"
+  }
+}

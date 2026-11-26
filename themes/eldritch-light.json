@@ -1,0 +1,23 @@
+{
+  "meta": {
+    "name": "Eldritch Light",
+    "slug": "eldritch-light",
+    "dark": false
+  },
+  "palette": {
+    "bg": "f0f3f4",
+    "blue": "2a3590",
+    "comment": "c9cbcd",
+    "cyan": "007a99",
+    "fg": "1e2029",
+    "green": "1a9960",
+    "lavender": "8a2070",
+    "maroon": "a03040",
+    "mauve": "8a2070",
+    "orange": "aa6828",
+    "red": "a03040",
+    "selection": "d5d9db",
+    "teal": "007a99",
+    "yellow": "b3a010"
+  }
+}

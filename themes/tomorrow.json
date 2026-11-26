@@ -1,0 +1,23 @@
+{
+  "meta": {
+    "name": "Tomorrow",
+    "slug": "tomorrow",
+    "dark": true
+  },
+  "palette": {
+    "bg": "1d1f21",
+    "blue": "81a2be",
+    "comment": "969896",
+    "cyan": "8abeb7",
+    "fg": "c5c8c6",
+    "green": "b5bd68",
+    "lavender": "b294bb",
+    "maroon": "cc6666",
+    "mauve": "b294bb",
+    "orange": "de966d",
+    "red": "cc6666",
+    "selection": "282a2e",
+    "teal": "8abeb7",
+    "yellow": "f0c674"
+  }
+}

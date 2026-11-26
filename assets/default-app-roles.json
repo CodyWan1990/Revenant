@@ -1,0 +1,125 @@
+[
+  {
+    "title": "Internet",
+    "rows": [
+      {
+        "label": "Web browser",
+        "types": [
+          "x-scheme-handler/https",
+          "x-scheme-handler/http",
+          "text/html"
+        ],
+        "action": "Open browser"
+      },
+      {
+        "label": "Email",
+        "types": [
+          "x-scheme-handler/mailto"
+        ],
+        "action": "Open email"
+      }
+    ]
+  },
+  {
+    "title": "Files",
+    "rows": [
+      {
+        "label": "File manager",
+        "types": [
+          "inode/directory"
+        ],
+        "action": "Open file manager"
+      },
+      {
+        "label": "Text editor",
+        "types": [
+          "text/plain"
+        ],
+        "action": "Open text editor"
+      },
+      {
+        "label": "Archive manager",
+        "types": [
+          "application/zip",
+          "application/x-tar",
+          "application/x-7z-compressed",
+          "application/vnd.rar"
+        ],
+        "action": "Open archive manager"
+      }
+    ]
+  },
+  {
+    "title": "Media",
+    "rows": [
+      {
+        "label": "Image viewer",
+        "types": [
+          "image/png",
+          "image/jpeg",
+          "image/webp",
+          "image/gif"
+        ],
+        "action": "Open image viewer"
+      },
+      {
+        "label": "Audio player",
+        "types": [
+          "audio/mpeg",
+          "audio/flac",
+          "audio/ogg",
+          "audio/x-wav"
+        ],
+        "action": "Open audio player"
+      },
+      {
+        "label": "Video player",
+        "types": [
+          "video/mp4",
+          "video/x-matroska",
+          "video/webm"
+        ],
+        "action": "Open video player"
+      }
+    ]
+  },
+  {
+    "title": "Documents",
+    "rows": [
+      {
+        "label": "PDF viewer",
+        "types": [
+          "application/pdf"
+        ],
+        "action": "Open PDF viewer"
+      },
+      {
+        "label": "Word processor",
+        "types": [
+          "application/vnd.oasis.opendocument.text",
+          "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+          "application/msword"
+        ],
+        "action": "Open word processor"
+      },
+      {
+        "label": "Spreadsheet",
+        "types": [
+          "application/vnd.oasis.opendocument.spreadsheet",
+          "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+          "application/vnd.ms-excel"
+        ],
+        "action": "Open spreadsheet"
+      },
+      {
+        "label": "Presentation",
+        "types": [
+          "application/vnd.oasis.opendocument.presentation",
+          "application/vnd.openxmlformats-officedocument.presentationml.presentation",
+          "application/vnd.ms-powerpoint"
+        ],
+        "action": "Open presentation"
+      }
+    ]
+  }
+]

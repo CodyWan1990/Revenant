@@ -1,0 +1,23 @@
+{
+  "meta": {
+    "name": "Flexoki",
+    "slug": "flexoki",
+    "dark": true
+  },
+  "palette": {
+    "bg": "100f0f",
+    "blue": "4385be",
+    "comment": "575653",
+    "cyan": "3aa99f",
+    "fg": "cecdc3",
+    "green": "879a39",
+    "lavender": "ce5d97",
+    "maroon": "d14d41",
+    "mauve": "ce5d97",
+    "orange": "d0782b",
+    "red": "d14d41",
+    "selection": "1c1b1a",
+    "teal": "3aa99f",
+    "yellow": "d0a215"
+  }
+}

@@ -1,0 +1,23 @@
+{
+  "meta": {
+    "name": "Tokyo Night Storm",
+    "slug": "tokyo-night-storm",
+    "dark": true
+  },
+  "palette": {
+    "bg": "24283b",
+    "blue": "7aa2f7",
+    "comment": "414868",
+    "cyan": "7dcfff",
+    "fg": "c0caf5",
+    "green": "9ece6a",
+    "lavender": "bb9af7",
+    "maroon": "f7768e",
+    "mauve": "bb9af7",
+    "orange": "ec927b",
+    "red": "f7768e",
+    "selection": "292e42",
+    "teal": "7dcfff",
+    "yellow": "e0af68"
+  }
+}

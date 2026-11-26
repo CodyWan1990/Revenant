@@ -1,0 +1,23 @@
+{
+  "meta": {
+    "name": "GitHub Light",
+    "slug": "github-light",
+    "dark": false
+  },
+  "palette": {
+    "bg": "ffffff",
+    "blue": "0969da",
+    "comment": "57606a",
+    "cyan": "1b7c83",
+    "fg": "1f2328",
+    "green": "116329",
+    "lavender": "8250df",
+    "maroon": "cf222e",
+    "mauve": "8250df",
+    "orange": "8e2817",
+    "red": "cf222e",
+    "selection": "f6f8fa",
+    "teal": "1b7c83",
+    "yellow": "4d2d00"
+  }
+}

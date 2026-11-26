@@ -1,0 +1,23 @@
+{
+  "meta": {
+    "name": "Eldritch",
+    "slug": "eldritch",
+    "dark": true
+  },
+  "palette": {
+    "bg": "212337",
+    "blue": "9071f4",
+    "comment": "7081d0",
+    "cyan": "04d1f9",
+    "fg": "ebfafa",
+    "green": "37f499",
+    "lavender": "f265b5",
+    "maroon": "f9515d",
+    "mauve": "f265b5",
+    "orange": "f1a54f",
+    "red": "f9515d",
+    "selection": "292e42",
+    "teal": "04d1f9",
+    "yellow": "e9f941"
+  }
+}
