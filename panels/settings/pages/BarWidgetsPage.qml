@@ -237,16 +237,16 @@ Flickable {
             id: presetsCard
             x: 24
             width: col.width - 48
-            title: "Saved layouts"
-            description: "Save the bar as it is now — its widgets and look — so you can come back to it after experimenting."
+            title: "Layouts"
+            description: "Save the bar as it is now — its widgets and look — so you can come back to it after experimenting. \"" + Services.Settings.defaultBarPresetName + "\" is the stock bar."
 
-            readonly property var names: Services.Settings.barPresets.map(preset => preset.name)
+            readonly property var names: Services.Settings.allBarPresets.map(preset => preset.name)
             property string selectedName: ""
             readonly property string presetName: names.includes(selectedName) ? selectedName : names[0] ?? ""
 
             SettingsUi.OptionRow {
                 visible: presetsCard.names.length > 0
-                title: "Your layouts"
+                title: "Pick a layout"
                 Column {
                     width: parent.width
                     spacing: 8
@@ -266,6 +266,7 @@ Flickable {
                             onClicked: Services.Settings.applyBarPreset(presetsCard.presetName, root.layoutTarget)
                         }
                         Components.TextButton {
+                            visible: presetsCard.presetName !== Services.Settings.defaultBarPresetName
                             text: "Delete it"
                             onClicked: Services.Settings.deleteBarPreset(presetsCard.presetName)
                         }

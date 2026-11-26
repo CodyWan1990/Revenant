@@ -70,6 +70,16 @@ git clone @REPO_URL@ ~/Projects/revenant
 ~/Projects/revenant/install.sh          # --dry-run first to see what it would do
 ```
 
+> [!WARNING]
+> **Debian 13 (trixie): the installer enables `trixie-backports`.** Quickshell
+> is only packaged there, so it adds
+> `/etc/apt/sources.list.d/trixie-backports.list` (after asking). Backports
+> never replace a package on their own, but the install takes the
+> packages it asks for from backports where they're newer, so PipeWire
+> comes from backports too (Quickshell needs its newer library). Answer
+> *no* to keep backports off; the shell can't be installed from
+> packages then. To undo it later, delete that file and run `sudo apt update`.
+
 `install.sh` asks before each step, and running it again changes nothing:
 1. packages, with `sudo`. On Debian/Ubuntu it sets up a fresh system
    completely: it enables Debian's backports (Quickshell is only there on

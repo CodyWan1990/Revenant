@@ -229,7 +229,7 @@ SettingsUi.SettingsPage {
                     readonly property string barOutput: presetRow.modelData.bar?.output ?? "*"
                     readonly property bool perMonitor: Services.Settings.barLayoutMode === "separate"
                     readonly property bool missing: barPreset !== ""
-                        && !Services.Settings.barPresets.some(b => b.name === barPreset)
+                        && !Services.Settings.allBarPresets.some(b => b.name === barPreset)
                     anchors.top: applyArea.bottom
                     anchors.topMargin: 4
                     anchors.left: parent.left
@@ -249,7 +249,7 @@ SettingsUi.SettingsPage {
                         Layout.alignment: Qt.AlignTop
                         labelWidth: 0
                         placeholder: "Keep the bar as it is"
-                        model: [""].concat(Services.Settings.barPresets.map(b => b.name))
+                        model: [""].concat(Services.Settings.allBarPresets.map(b => b.name))
                             .concat(barRow.missing ? [barRow.barPreset] : [])
                         labels: barRow.missing ? { "": "Keep the bar as it is", [barRow.barPreset]: barRow.barPreset + " (deleted)" }
                                                : { "": "Keep the bar as it is" }

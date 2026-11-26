@@ -11,13 +11,37 @@ QtObject {
     id: root
 
     property string barPosition: "top"
-    property int barHeight: 35
-    // Deliberately minimal. The widgets that need configuring or a network
-    // before they say anything useful — updates, weather, media, cpu, memory —
-    // are off by default; they are one click away in Settings → Bar.
-    property var barLeft: ["separator", "menu", "separator", "workspaces", "separator", "windowTitle"]
-    property var barCenter: ["clock"]
-    property var barRight: ["audio", "separator", "themeSwitcher", "separator", "systemTray", "separator", "notifications", "separator", "power"]
+    property int barHeight: 32
+    // The stock bar: menu, workspaces, running apps and the window title on
+    // the left; the clock; clipboard, tray, media, volume, Control Center
+    // (notifications, network, Bluetooth, updates), themes, settings and power
+    // on the right. Widgets that need setting up first (weather, headset, …)
+    // are one click away in Settings → Bar → Widgets.
+    property var barLeft: [
+        {"type":"menu","style":"none"},
+        {"type":"separator","style":"none","glyph":"|","width":10,"hideGlyph":true},
+        {"type":"workspaces","style":"none","format":"{indicator} {index}","indicator":"","bold":true,"tagScale":1,"itemSpacing":10,"tagPadding":2,"underlineHeight":0,"focusedGlyph":"","visibleGlyph":"","otherGlyph":"","urgentGlyph":"","vacantMode":"inherit","scrollEnabled":false},
+        {"type":"separator","style":"none","color":"orange","glyph":"|","width":10,"hideGlyph":true},
+        {"type":"runningApps","style":"underline"},
+        {"type":"windowTitle","style":"none","color":"yellow","maxWidth":600,"prefix":""}
+    ]
+    property var barCenter: [
+        {"type":"clock","style":"none","color":"green","weekdayFormat":"dddd","dateFormat":"MMMM dd yyyy,","timeIcon":false,"timeFormat":"h:mm AP"}
+    ]
+    property var barRight: [
+        {"type":"clipboard","style":"none","color":"cyan"},
+        {"type":"separator","style":"none","color":"orange","glyph":"|","width":10,"hideGlyph":true},
+        {"type":"systemTray","style":"none"},
+        {"type":"separator","style":"none","color":"orange","glyph":"|","width":10,"hideGlyph":true},
+        {"type":"media","style":"none","visualizer":"both"},
+        {"type":"audio","style":"none","color":"orange"},
+        {"type":"separator","style":"none","color":"orange","glyph":"|","width":10,"hideGlyph":true},
+        {"type":"controlCenter","style":"none","showNetwork":false,"showNetworkName":false,"showBluetooth":false,"openOn":"notifications"},
+        {"type":"separator","style":"none","color":"orange","glyph":"|","width":10,"hideGlyph":true},
+        {"type":"themeSwitcher","style":"none"},
+        {"type":"settings","style":"none"},
+        {"type":"power","style":"none","color":"red"}
+    ]
     // Legacy secondary layout, used when importing existing monitor layouts.
     property var barSecondaryLeft: []
     property var barSecondaryCenter: []
@@ -27,6 +51,13 @@ QtObject {
     property string barLayoutMode: defaultBindings.barLayoutMode()
     property var barMonitorProfiles: ({})
     property var barPresets: []
+    /// The stock bar (this file's defaults) as a preset that can't be deleted
+    /// or overwritten, so a bar saved before the defaults changed can go back
+    /// to the current ones. Not stored in settings.json: it follows the shell.
+    readonly property string defaultBarPresetName: "Revenant default"
+    property var defaultBarProfile: ({})
+    readonly property var allBarPresets: [{ name: defaultBarPresetName, profile: defaultBarProfile, builtin: true }]
+        .concat(barPresets.filter(preset => preset.name !== defaultBarPresetName))
     property string preferredBarOutput: ""
     readonly property var barOutputs: Quickshell.screens.map(screen => screen.name).filter(name => name)
     readonly property string primaryBarOutput: Services.I3.primaryOutput || barOutputs[0] || ""
@@ -91,13 +122,13 @@ QtObject {
 
     function saveBarPreset(name, output) {
         name = name.trim();
-        if (!name || barPresets.some(preset => preset.name === name)) return false;
+        if (!name || allBarPresets.some(preset => preset.name === name)) return false;
         barPresets = barPresets.concat({ name: name, profile: barFor(output) });
         return true;
     }
 
     function applyBarPreset(name, output) {
-        const preset = barPresets.find(entry => entry.name === name);
+        const preset = allBarPresets.find(entry => entry.name === name);
         if (preset) setBarValues(output, preset.profile);
     }
 
@@ -105,7 +136,7 @@ QtObject {
     /// one, and in "each monitor its own" mode each monitor's. False if there
     /// is no preset of that name.
     function applyBarPresetTo(name, output) {
-        const preset = barPresets.find(entry => entry.name === name);
+        const preset = allBarPresets.find(entry => entry.name === name);
         if (!preset) return false;
         if (output && output !== "*") {
             setBarValues(barLayoutMode === "separate" ? output : "", preset.profile);
@@ -141,14 +172,14 @@ QtObject {
     /// "polybar": plain text + | separators + each widget's own underline/box
     /// (the original look). "pills" | "segments" | "flat": Dux styles, drawn
     /// by components/WidgetSurface.qml around every widget.
-    property string barWidgetStyle: "polybar"
-    property int barPillRadius: 10
+    property string barWidgetStyle: "segments"
+    property int barPillRadius: 2
     /// Horizontal padding inside a pill / segment.
     property int barPillPadding: 10
     /// Gap between pills (and between segment runs) in the Dux styles.
-    property int barWidgetGap: 6
+    property int barWidgetGap: 10
     /// How strongly the pill surface is tinted toward the foreground (0–40 %).
-    property int barPillTint: 12
+    property int barPillTint: 3
 
     /// Default icon set for widgets whose own iconSet is "auto":
     /// "nerd" (Nerd Font glyphs) | "material" (Material Symbols / Icons) | "emoji".
@@ -515,6 +546,10 @@ QtObject {
         for (const p in schema)
             defaults[p] = JSON.stringify(root[p]);
         internal.defaults = defaults;
+        const stock = {};
+        for (const key in barOptionProps)
+            stock[key] = JSON.parse(defaults[barOptionProps[key]]);
+        defaultBarProfile = stock;
         // Every setting saves the same way, so wire the change signals in a
         // loop rather than writing eighteen identical handlers.
         for (const p in schema)

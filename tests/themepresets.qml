@@ -122,6 +122,19 @@ ShellRoot {
             Services.Theme.applyPreset("night-drive");
             check(S.barHeight === 33, "applying the preset puts that bar back");
             check(!S.applyBarPresetTo("Nope", "*"), "an unknown bar preset is refused");
+            // The stock bar is always there as a preset, and stays the stock bar.
+            check(S.allBarPresets[0]?.name === S.defaultBarPresetName && S.allBarPresets[0].builtin,
+                  "the stock bar is listed first as a built-in preset");
+            check(!S.saveBarPreset(S.defaultBarPresetName, ""), "its name can't be saved over");
+            S.deleteBarPreset(S.defaultBarPresetName);
+            check(S.allBarPresets.some(b => b.name === S.defaultBarPresetName), "and it can't be deleted");
+            S.barHeight = 21;
+            S.barWidgetStyle = "polybar";
+            check(S.applyBarPresetTo(S.defaultBarPresetName, "*"), "it applies like any preset");
+            check(S.barHeight === S.defaultBarProfile.height && S.barWidgetStyle === S.defaultBarProfile.widgetStyle
+                  && S.barRight.map(w => w.type).join() === S.defaultBarProfile.right.map(w => w.type).join(),
+                  "and brings back the stock height, style and widgets");
+            check(!S.barPresets.some(b => b.name === S.defaultBarPresetName), "without being saved to settings.json");
             S.setThemePresetBar("night-drive", "", "*");
             check(S.themePresets[0].bar === undefined, "and it can be cleared");
 
