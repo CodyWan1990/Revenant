@@ -28,9 +28,10 @@
 #                 lines. Either way a backup is kept, and it is put back if
 #                 `i3 -C` rejects the result
 #   4. environment  QS_ICON_THEME (tray icons) and QT_QPA_PLATFORMTHEME (Qt
-#                 colours), appended between marker lines to ~/.xsessionrc
-#                 (Debian/Ubuntu: their Xsession reads it) or ~/.xprofile;
-#                 skipped if your session files set them already
+#                 colours), appended between marker lines to the file your
+#                 login script reads (~/.xsessionrc on Debian/Ubuntu,
+#                 ~/.xprofile on Arch, ~/.profile on Fedora); skipped if your
+#                 session files set them already
 #   5. theme      runs the theme hooks once, so i3, kitty, GTK and Qt match
 #                 the shell's theme from the first login
 # It never removes anything of yours: polybar, dunst or an i3bar block are
@@ -243,7 +244,7 @@ fi
 if (( ! packages )); then
     say "Skipped (--no-packages)."
 elif [[ -z $fam ]]; then
-    warn "Unknown distro (${ID:-?}): install the packages in the README's Requirements by hand."
+    warn "Unknown distro (${ID:-?}): install the packages in the README's Packages section by hand."
 elif (( ${#pkgs[@]} == 0 )); then
     warn "None of the packages are in your package lists: refresh them (answer yes above), then run this again."
 else
@@ -530,12 +531,23 @@ fi
 
 # ─── 4. environment ────────────────────────────────────────────────────────
 # The shell applies key repeat, blanking, power saving, the login volume and
-# the wallpaper itself. Two variables have to come from the session: the
-# login screen's Xsession reads ~/.xsessionrc on Debian and Ubuntu (Debian's
-# ignores ~/.xprofile), ~/.xprofile elsewhere.
+# the wallpaper itself. Two variables have to come from the session, and
+# each distro's login script reads a different file: Debian/Ubuntu's Xsession
+# ~/.xsessionrc (Debian's ignores ~/.xprofile), Arch's LightDM wrapper
+# ~/.xprofile, Fedora's xinitrc-common ~/.profile. Ask the scripts rather
+# than the distro name.
 step "Session environment"
-envfile="$HOME/.xprofile"
-compgen -G "/etc/X11/Xsession.d/*xsessionrc" >/dev/null && envfile="$HOME/.xsessionrc"
+session_scripts=(/etc/lightdm/Xsession /usr/bin/lightdm-session /usr/sbin/lightdm-session
+                 /etc/X11/xinit/Xsession /etc/X11/xinit/xinitrc-common /etc/X11/Xsession)
+if compgen -G "/etc/X11/Xsession.d/*xsessionrc" >/dev/null; then
+    envfile="$HOME/.xsessionrc"
+elif grep -qs 'HOME/\.xprofile' "${session_scripts[@]}"; then
+    envfile="$HOME/.xprofile"
+elif grep -qs 'HOME/\.profile' "${session_scripts[@]}"; then
+    envfile="$HOME/.profile"
+else
+    envfile="$HOME/.xprofile"
+fi
 env_begin="# >>> revenant environment (added by install.sh) >>>"
 env_end="# <<< revenant environment <<<"
 env_block="$env_begin
@@ -545,10 +557,14 @@ export QS_ICON_THEME=\"\${QS_ICON_THEME:-Papirus-Dark}\"
 export QT_QPA_PLATFORMTHEME=\"\${QT_QPA_PLATFORMTHEME:-qt5ct}\"
 $env_end"
 # Set already, by this script or by hand, in any file a session reads?
+# The installer's own block counts only in the file this login reads (an
+# older run may have put it in one that isn't read); one you wrote yourself
+# counts anywhere.
 setenv="$(cat "$HOME/.xprofile" "$HOME/.xsessionrc" "$HOME/.profile" 2>/dev/null || true)"
-if [[ $setenv == *"$env_begin"* ]]; then
-    ok "QS_ICON_THEME and QT_QPA_PLATFORMTHEME are set (installer block)."
-elif [[ $setenv == *QS_ICON_THEME=* && $setenv == *QT_QPA_PLATFORMTHEME=* ]]; then
+ownenv="${setenv//"$env_block"/}"
+if grep -qsF "$env_begin" "$envfile"; then
+    ok "QS_ICON_THEME and QT_QPA_PLATFORMTHEME are set (installer block in $(t "$envfile"))."
+elif [[ $ownenv == *QS_ICON_THEME=* && $ownenv == *QT_QPA_PLATFORMTHEME=* ]]; then
     ok "QS_ICON_THEME and QT_QPA_PLATFORMTHEME are set in your session files."
 else
     say "Tray icons need an icon theme (QS_ICON_THEME), and Qt apps follow the theme through qt5ct (QT_QPA_PLATFORMTHEME)."

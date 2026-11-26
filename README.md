@@ -19,6 +19,13 @@ rofi:
   monitor layout (each change checked with `i3 -C`), autostart, default apps,
   Wi-Fi, Bluetooth, polkit prompts, and the theme of i3, kitty, GTK and Qt
 
+> [!NOTE]
+> **Built with AI.** Much of Revenant's code and documentation was written
+> with AI coding assistants (Claude Code and Codex), directed, reviewed and tested by
+> the author on real machines and fresh VMs. It's a personal project, offered
+> as is: read what a script does before you run it, especially the installer,
+> which uses `sudo`. Bug reports and fixes are welcome.
+
 ![Settings → Themes & wallpapers: presets, colour theme and wallpapers](docs/screenshots/settings.jpg)
 
 | | |
@@ -39,86 +46,165 @@ The window-manager seam is `services/I3.qml`: a long-lived
 `i3-msg -t subscribe` in, `get_workspaces` / `get_tree` / `get_outputs` to
 refresh, and `i3-msg` commands out.
 
-## Requirements
-
-- **Quickshell ≥ 0.3** (with X11 and I3 support), **i3 ≥ 4.20**, Python 3
-- **NetworkManager** (Wi-Fi, connections) and **PipeWire** (volume, OSD,
-  visualiser), **BlueZ** for Bluetooth
-- **clipmenu 7** (`clipmenud`) for text history: no distro packages version 7 yet (Arch has 6.x), so `install.sh` builds it from [source](https://github.com/cdown/clipmenu)
-- `xclip`, `xdotool`, `maim`, ImageMagick, `xwallpaper`, `jq`,
-  `xset` / `xrandr`, `notify-send`, `xdg-open`
-- Python modules: python-xlib, PyGObject (`gi`)
-- a **Nerd Font** (bar icons) and **Noto Color Emoji**; an icon theme for
-  tray icons (see below)
-
-| | Packages (names differ a little between releases) |
-|---|---|
-| Debian / Ubuntu | `quickshell` (Debian 13: from `trixie-backports`), `i3 xclip xdotool maim imagemagick xwallpaper jq x11-xserver-utils libnotify-bin xdg-utils network-manager pipewire-pulse python3-xlib python3-gi fonts-noto-color-emoji qml6-module-qt-labs-folderlistmodel qml6-module-qtquick-effects` |
-| Arch | `quickshell i3-wm xclip xdotool maim imagemagick xwallpaper jq xorg-xset xorg-xrandr libnotify xdg-utils networkmanager pipewire-pulse python-xlib python-gobject noto-fonts-emoji` |
-| Fedora | `quickshell` from the [`errornointernet/quickshell`](https://copr.fedorainfracloud.org/coprs/errornointernet/quickshell) COPR (Fedora's own is older than 0.3), `i3 xclip xdotool maim ImageMagick jq xset xrandr libnotify xdg-utils NetworkManager pipewire-pulseaudio python3-xlib python3-gobject google-noto-color-emoji-fonts` |
-
-Optional — each feature hides or says what's missing without them:
-`cava` (audio visualiser), `brightnessctl`, `power-profiles-daemon`,
-`headsetcontrol`, `dex` (XDG autostart), `flatpak` / `snap` (update counts),
-a polkit agent such as polkit-gnome or lxpolkit (when the shell isn't the
-agent), kitty (themed whenever it is installed).
-
 ## Install
 
-```sh
-git clone @REPO_URL@ ~/Projects/revenant
-~/Projects/revenant/install.sh          # --dry-run first to see what it would do
-```
+Pick the path that matches your machine:
+
+- **[Fresh install](#fresh-install)**: a new or minimal Debian, Ubuntu, Arch
+  or Fedora system. The installer sets up everything, from packages to the
+  login screen.
+- **[Existing i3 setup](#existing-i3-setup)**: you already use i3 and want to
+  keep your config. Add the shell to it, with or without the installer.
+
+### Fresh install
+
+Tested on minimal installs of Debian 13, Arch and Fedora 45, and on Ubuntu 26.10.
+
+1. **Install the base system** with a network connection and a user that can
+   use `sudo`. No desktop is needed: the installer adds an X server and a
+   login screen if there's none.
+2. **Install git**, if it isn't there yet:
+
+   | Debian / Ubuntu | Arch | Fedora |
+   |---|---|---|
+   | `sudo apt install git` | `sudo pacman -S git` | `sudo dnf install git` |
+
+3. **Get Revenant and run the installer:**
+
+   ```sh
+   git clone https://github.com/CodyWan1990/Revenant.git ~/Projects/revenant
+   cd ~/Projects/revenant
+   ./install.sh --dry-run    # optional: see what it would do, changing nothing
+   ./install.sh
+   ```
+
+   It asks before each step; press Enter to say yes. It asks for your
+   password when a step needs `sudo`.
+4. **Reboot**, pick **i3** at the login screen (the session menu, usually
+   in a corner) and log in. The bar appears after a moment.
+5. **Get started:**
+
+   | Key | Does |
+   |---|---|
+   | Super + / | lists every shortcut |
+   | Super + d | app launcher |
+   | Super + Return | terminal |
+   | Super + s | Settings |
+   | Super + t | themes |
+   | Super + v | clipboard history |
+
+<details>
+<summary>What the installer does, step by step</summary>
+
+1. **Packages.** Everything a fresh system needs: the shell and its tools,
+   sound, network, Bluetooth, fonts (Cascadia Code NF, Noto Color Emoji),
+   Papirus icons, kitty, qt5ct/qt6ct, xsettingsd, and an X server and
+   LightDM if there's no login screen. It turns on Bluetooth (and
+   NetworkManager, if nothing else manages your network) where the distro
+   leaves them off, and builds what no package provides: clipmenu 7, and
+   on Fedora xwallpaper. Names your release doesn't have are left out
+   rather than failing the install.
+2. **Shell folder.** A copy of the clone in `~/.config/quickshell/revenant`,
+   where the shell runs from.
+3. **i3 config.** With no i3 config yet (or only the default one i3 writes
+   on first start, whose keys clash with the shell's), a starter config
+   with the shell's keys, gaps and colours. Settings → Keybinds and
+   i3 Options edit it. The old config, if any, is kept as
+   `~/.config/i3.before-revenant`.
+4. **Session environment.** `QS_ICON_THEME` (tray icons) and
+   `QT_QPA_PLATFORMTHEME` (Qt colours), written to the file your login
+   screen reads: `~/.xsessionrc` on Debian/Ubuntu, `~/.xprofile` on Arch,
+   `~/.profile` on Fedora.
+5. **Theme.** Applies the current theme (Dracula on a new install) to i3,
+   kitty, GTK and Qt apps, so they match the bar from the first login.
+
+Running it again is safe: what's already done is reported with a ✓ and
+left alone. At the end, anything that needs your attention is listed again.
+
+</details>
+
+#### Distro notes
 
 > [!WARNING]
-> **Debian 13 (trixie): the installer enables `trixie-backports`.** Quickshell
-> is only packaged there, so it adds
+> **Debian 13 (trixie): the installer enables `trixie-backports`.**
+> Quickshell is only packaged there, so it adds
 > `/etc/apt/sources.list.d/trixie-backports.list` (after asking). Backports
-> never replace a package on their own, but the install takes the
-> packages it asks for from backports where they're newer, so PipeWire
-> comes from backports too (Quickshell needs its newer library). Answer
-> *no* to keep backports off; the shell can't be installed from
-> packages then. To undo it later, delete that file and run `sudo apt update`.
+> never replace a package on their own, but the install takes the packages
+> it asks for from backports where they're newer, so PipeWire comes from
+> backports too (Quickshell needs its newer library). Answer *no* to keep
+> backports off; the shell can't be installed from packages then. To undo
+> it later, delete that file and run `sudo apt update`.
 
-`install.sh` asks before each step, and running it again changes nothing:
-1. packages, with `sudo`, for a complete fresh system on Debian/Ubuntu, Arch
-   and Fedora. It gets Quickshell 0.3 where the distro's main repositories
-   don't have it (Debian 13: `trixie-backports`; Fedora: the
-   `errornointernet/quickshell` COPR), refreshes the package lists (on Arch
-   that is a full `pacman -Syu`), and installs the shell's packages plus
-   sound, network, Bluetooth, fonts, Papirus icons, kitty, qt5ct/qt6ct and
-   xsettingsd, and an X server and LightDM (enabled) if there's no login
-   screen. It builds clipmenu 7, which no distro packages (Arch's is 6.x),
-   and builds or downloads xwallpaper (Fedora) and the adw-gtk3 GTK theme
-   (Debian/Ubuntu) where they aren't packaged.
-2. a copy of the clone in `~/.config/quickshell/revenant`, where the shell
-   runs from (to update: `git pull` in the clone, then `install.sh` again;
-   clone straight into `~/.config/quickshell/revenant` and `git pull` alone
-   is enough)
-3. i3: with no config yet (or only the one i3-config-wizard wrote), a
-   starter config from `i3/starter/` with the shell's keys, gaps and colours,
-   laid out the way Settings → Keybinds and i3 Options edit it. With your
-   own config, the i3 lines below at its end between marker lines. Either
-   way it keeps a backup, and puts it back if `i3 -C` rejects the result.
-   `--i3-starter` swaps your config for the starter one.
-4. `QS_ICON_THEME` and `QT_QPA_PLATFORMTHEME`, added to `~/.xsessionrc` on
-   Debian/Ubuntu (their login session reads it) or `~/.xprofile`, unless
-   your session files set them already
-5. the current theme (Dracula on a new install) applied once through the
-   theme hooks, so i3, kitty, GTK and Qt match from the first login
+- **Fedora:** Fedora's own `quickshell` is older than 0.3, so the installer
+  offers the [`errornointernet/quickshell`](https://copr.fedorainfracloud.org/coprs/errornointernet/quickshell)
+  COPR (a community repository), which has the current release.
+- **Arch:** Arch only installs from an up-to-date package database, so the
+  installer upgrades the whole system first (`pacman -Syu`). Arch's
+  Nerd Font is called *CaskaydiaCove Nerd Font*; the shell uses it on its own.
+- **Ubuntu:** everything comes from Ubuntu's own repositories, on a release
+  that packages Quickshell 0.3 (26.10 does). On older ones, build Quickshell
+  from [quickshell.org](https://quickshell.org) first.
 
-It only points out polybar, dunst or an i3bar `bar { }` block; remove those
-yourself. `--yes` skips the questions, `--no-packages` the package step. A
-setup you made by hand is recognised and left alone.
+### Existing i3 setup
 
-### By hand
+The installer is made for fresh systems, but it can add the shell to one
+you already use without replacing your config. First:
+
+1. **Stop what the shell replaces**, or you'll get two of each. Remove their
+   `exec` lines from your i3 config:
+   - your bar: polybar, or i3bar's `bar { }` block
+   - your notification daemon: dunst or mako (the shell *is* the
+     notification server)
+   - a clipboard manager other than clipmenu, and the rofi or dmenu binds
+     you want the launcher to take over (optional)
+2. **Check for clipmenu 7.** The clipboard panel needs version 7 (a compiled
+   program; `file "$(command -v clipmenud)"` says *ELF*). Version 6 is a
+   shell script; the installer builds 7 for you.
+3. **Know what the theme hooks change.** On every theme switch the shell
+   rewrites kitty's `current-theme.conf` (and adds an include to
+   `kitty.conf`), the GTK and Qt palettes, and i3's window colours. Turn any
+   of them off in Settings → Appearance → Theme hooks.
+
+Then choose one:
+
+#### With the installer
 
 ```sh
-git clone @REPO_URL@ ~/.config/quickshell/revenant
+git clone https://github.com/CodyWan1990/Revenant.git ~/Projects/revenant
+cd ~/Projects/revenant
+./install.sh --no-packages --dry-run   # see what it would change
+./install.sh --no-packages             # install the packages yourself (below)
+```
+
+`--no-packages` skips the package step, so nothing is installed or upgraded
+system-wide. Leave it off if you'd like the installer to install packages
+too. With your own i3 config, it:
+
+- appends a marked block to the end of it: the shell's window rules, its
+  default keys (`revenant-keys.config`), the theme's window colours and
+  `exec qs -c revenant`, plus clipmenud and xsettingsd. A backup is kept as
+  `config.before-revenant`, and the change is undone if `i3 -C` rejects it.
+- leaves a config it can see you set up by hand alone, and only *points
+  out* polybar, dunst or an i3bar block: removing them is up to you.
+
+If your own keys clash with the shell's defaults, `i3 -C` fails and your
+config is put back as it was. Either drop the `revenant-keys.config` line
+from the block and bind the shell's panels yourself, or run
+`./install.sh --i3-starter` to use the starter config instead (yours is
+moved to `~/.config/i3.before-revenant`).
+
+Then log out and back in. Or, to stay logged in: restart i3 in place
+(`i3-msg restart`) and start the shell with `setsid -f qs -c revenant`.
+
+#### By hand
+
+```sh
+git clone https://github.com/CodyWan1990/Revenant.git ~/.config/quickshell/revenant
 ```
 
 The directory name matters: panel window titles, runtime files and the config
-directory are named after it. Then, in your i3 config:
+directory are named after it. Install the [packages](#packages), then add to
+your i3 config:
 
 ```
 # Window rules, and $rev / $rev_shot for your own binds (after your colours):
@@ -129,6 +215,7 @@ include ~/.config/quickshell/revenant/i3/revenant-keys.config
 include ~/.config/revenant/i3-colors.config
 
 exec --no-startup-id qs -c revenant
+exec --no-startup-id sh -c 'pgrep -x clipmenud >/dev/null || exec clipmenud'
 ```
 
 Nothing goes in a login file: when the shell starts it applies key repeat,
@@ -137,8 +224,9 @@ settings daemon would, and sets the login volume (off unless you turn it on
 in Settings → Autostart) once per session. Restarting the shell is safe:
 it re-applies the same values and leaves your volume alone.
 
-Two optional variables do have to come from your session environment
-(`~/.profile`, `~/.xprofile` or your display manager's equivalent):
+Two optional variables do have to come from your session environment: the
+file your login screen reads (`~/.xsessionrc` on Debian/Ubuntu,
+`~/.xprofile` on Arch, `~/.profile` on Fedora):
 
 ```sh
 export QS_ICON_THEME=Papirus-Dark   # any installed icon theme, for tray icons
@@ -153,6 +241,59 @@ Keybinds and Windows & gaps in Settings edit `modules/keys.config` and
 `modules/window-options.config` next to your i3 config; if your config has
 no such modules, the page offers **Set up**, which creates them and adds the
 include lines (checked with `i3 -C`).
+
+### Update
+
+- **Cloned somewhere else and installed with the installer:**
+  `git pull` in the clone, then `./install.sh --no-packages` (it updates the
+  copy in `~/.config/quickshell/revenant`).
+- **Cloned straight into `~/.config/quickshell/revenant`:** `git pull` is
+  enough.
+
+Then restart the shell: `pkill -x qs; setsid -f qs -c revenant`. Your
+settings in `~/.config/revenant/` are never touched by an update. To get the
+current stock bar after an update, pick **Revenant default** in Settings →
+Bar → Widgets → Layouts.
+
+### Uninstall
+
+1. Remove the block between `# >>> revenant` and `# <<< revenant <<<` from
+   your i3 config (or restore `config.before-revenant` /
+   `~/.config/i3.before-revenant`), and the `revenant environment` block
+   from `~/.xsessionrc`, `~/.xprofile` or `~/.profile`.
+2. Delete `~/.config/quickshell/revenant`, and `~/.config/revenant` if you
+   don't want to keep your settings.
+3. Reload i3. Packages the installer added stay installed; remove them with
+   your package manager if you like.
+
+### Packages
+
+What the shell needs, for installing by hand. The installer installs these
+and more (sound, fonts, icons, kitty, qt5ct/qt6ct, xsettingsd).
+
+- **Quickshell ≥ 0.3** (with X11 and I3 support), **i3 ≥ 4.20**, Python 3
+- **NetworkManager** (Wi-Fi, connections) and **PipeWire** (volume, OSD,
+  visualiser), **BlueZ** for Bluetooth
+- **clipmenu 7** (`clipmenud`) for text history: no distro packages version 7
+  yet (Arch has 6.x), so build it from [source](https://github.com/cdown/clipmenu)
+  (`make && sudo make install`)
+- `xclip`, `xdotool`, `maim`, ImageMagick, `xwallpaper`, `jq`,
+  `xset` / `xrandr`, `notify-send`, `xdg-open`
+- Python modules: python-xlib, PyGObject (`gi`)
+- a **Nerd Font** (bar icons) and **Noto Color Emoji**; an icon theme for
+  tray icons
+
+| | Packages |
+|---|---|
+| Debian / Ubuntu | `quickshell` (Debian 13: from `trixie-backports`), `i3 xclip xdotool maim imagemagick xwallpaper jq x11-xserver-utils libnotify-bin xdg-utils network-manager pipewire-pulse python3-xlib python3-gi fonts-noto-color-emoji qml6-module-qt-labs-folderlistmodel qml6-module-qtquick-effects` |
+| Arch | `quickshell i3-wm xclip xdotool maim imagemagick xwallpaper jq xorg-xset xorg-xrandr libnotify xdg-utils networkmanager pipewire-pulse python-xlib python-gobject noto-fonts-emoji` |
+| Fedora | `quickshell` from the [`errornointernet/quickshell`](https://copr.fedorainfracloud.org/coprs/errornointernet/quickshell) COPR (Fedora's own is older than 0.3), `i3 xclip xdotool maim ImageMagick jq xset xrandr libnotify xdg-utils NetworkManager pipewire-pulseaudio python3-xlib python3-gobject google-noto-color-emoji-fonts`; xwallpaper isn't packaged, so build it from its [release](https://github.com/stoeckmann/xwallpaper/releases) |
+
+Optional; each feature hides or says what's missing without them:
+`cava` (audio visualiser), `brightnessctl`, `power-profiles-daemon`,
+`headsetcontrol`, `dex` (XDG autostart), `flatpak` / `snap` (update counts),
+a polkit agent such as polkit-gnome or lxpolkit (when the shell isn't the
+agent), kitty (themed whenever it is installed).
 
 ## Files
 
@@ -325,8 +466,8 @@ palette and runs the **theme hooks** through `scripts/theming/theme-hooks.py`:
 
 - built-in, in `scripts/theming/hooks/`: `10-i3` (`~/.config/revenant/i3-colors.config`,
   reloading i3 if your config includes it), `20-rofi` (`colors.rasi`, only one
-  it wrote), `30-kitty` (`current-theme.conf` — include it at the end of
-  `kitty.conf`), `40-gtk` (GTK 3 live through a generated theme and
+  it wrote), `30-kitty` (`current-theme.conf`, which it includes at the end
+  of `kitty.conf` unless that already mentions it), `40-gtk` (GTK 3 live through a generated theme and
   xsettingsd; GTK 4 `gtk.css`), `50-qt` (qt5ct/qt6ct palettes, Fusion),
   `60-kde` (`plasma-apply-colorscheme`, if installed);
 - yours: every executable in `~/.config/revenant/hooks/theme.d/`, called with
