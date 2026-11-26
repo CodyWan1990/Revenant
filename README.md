@@ -44,7 +44,7 @@ refresh, and `i3-msg` commands out.
 - **Quickshell ≥ 0.3** (with X11 and I3 support), **i3 ≥ 4.20**, Python 3
 - **NetworkManager** (Wi-Fi, connections) and **PipeWire** (volume, OSD,
   visualiser), **BlueZ** for Bluetooth
-- **clipmenu 7** (`clipmenud`) for text history
+- **clipmenu 7** (`clipmenud`) for text history: no distro packages version 7 yet (Arch has 6.x), so `install.sh` builds it from [source](https://github.com/cdown/clipmenu)
 - `xclip`, `xdotool`, `maim`, ImageMagick, `xwallpaper`, `jq`,
   `xset` / `xrandr`, `notify-send`, `xdg-open`
 - Python modules: python-xlib, PyGObject (`gi`)
@@ -53,9 +53,9 @@ refresh, and `i3-msg` commands out.
 
 | | Packages (names differ a little between releases) |
 |---|---|
-| Debian / Ubuntu | `quickshell` (Debian 13: from `trixie-backports`), `clipmenu` (not packaged: build from [source](https://github.com/cdown/clipmenu)), `i3 xclip xdotool maim imagemagick xwallpaper jq x11-xserver-utils libnotify-bin xdg-utils network-manager pipewire-pulse python3-xlib python3-gi fonts-noto-color-emoji qml6-module-qt-labs-folderlistmodel qml6-module-qtquick-effects` |
-| Arch | `quickshell` (AUR), `i3-wm clipmenu xclip xdotool maim imagemagick xwallpaper jq xorg-xset xorg-xrandr libnotify xdg-utils networkmanager pipewire-pulse python-xlib python-gobject noto-fonts-emoji` |
-| Fedora | `quickshell` (COPR), `i3 clipmenu xclip xdotool maim ImageMagick xwallpaper jq xset xrandr libnotify xdg-utils NetworkManager pipewire-pulseaudio python3-xlib python3-gobject google-noto-color-emoji-fonts` |
+| Debian / Ubuntu | `quickshell` (Debian 13: from `trixie-backports`), `i3 xclip xdotool maim imagemagick xwallpaper jq x11-xserver-utils libnotify-bin xdg-utils network-manager pipewire-pulse python3-xlib python3-gi fonts-noto-color-emoji qml6-module-qt-labs-folderlistmodel qml6-module-qtquick-effects` |
+| Arch | `quickshell i3-wm xclip xdotool maim imagemagick xwallpaper jq xorg-xset xorg-xrandr libnotify xdg-utils networkmanager pipewire-pulse python-xlib python-gobject noto-fonts-emoji` |
+| Fedora | `quickshell` from the [`errornointernet/quickshell`](https://copr.fedorainfracloud.org/coprs/errornointernet/quickshell) COPR (Fedora's own is older than 0.3), `i3 xclip xdotool maim ImageMagick jq xset xrandr libnotify xdg-utils NetworkManager pipewire-pulseaudio python3-xlib python3-gobject google-noto-color-emoji-fonts` |
 
 Optional — each feature hides or says what's missing without them:
 `cava` (audio visualiser), `brightnessctl`, `power-profiles-daemon`,
@@ -81,13 +81,16 @@ git clone @REPO_URL@ ~/Projects/revenant
 > packages then. To undo it later, delete that file and run `sudo apt update`.
 
 `install.sh` asks before each step, and running it again changes nothing:
-1. packages, with `sudo`. On Debian/Ubuntu it sets up a fresh system
-   completely: it enables Debian's backports (Quickshell is only there on
-   Debian 13), runs `apt-get update` and installs the shell's packages plus
+1. packages, with `sudo`, for a complete fresh system on Debian/Ubuntu, Arch
+   and Fedora. It gets Quickshell 0.3 where the distro's main repositories
+   don't have it (Debian 13: `trixie-backports`; Fedora: the
+   `errornointernet/quickshell` COPR), refreshes the package lists (on Arch
+   that is a full `pacman -Syu`), and installs the shell's packages plus
    sound, network, Bluetooth, fonts, Papirus icons, kitty, qt5ct/qt6ct and
-   xsettingsd (and an X server and LightDM if there are none). It also
-   builds clipmenu 7 and downloads the adw-gtk3 GTK theme, which neither
-   distro packages. On Arch and Fedora it installs the table above.
+   xsettingsd, and an X server and LightDM (enabled) if there's no login
+   screen. It builds clipmenu 7, which no distro packages (Arch's is 6.x),
+   and builds or downloads xwallpaper (Fedora) and the adw-gtk3 GTK theme
+   (Debian/Ubuntu) where they aren't packaged.
 2. a copy of the clone in `~/.config/quickshell/revenant`, where the shell
    runs from (to update: `git pull` in the clone, then `install.sh` again;
    clone straight into `~/.config/quickshell/revenant` and `git pull` alone

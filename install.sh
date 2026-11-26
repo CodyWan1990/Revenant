@@ -9,13 +9,14 @@
 #                                (the old ~/.config/i3 is kept as a backup)
 #
 # Steps (each can be declined, and running it again changes nothing):
-#   1. packages   everything a fresh system needs, with sudo. Debian/Ubuntu:
-#                 enables Debian's backports (Quickshell is only there on
-#                 Debian 13), apt-get update, then the full list (the shell,
-#                 sound, network, fonts, icons, kitty, qt5ct/qt6ct, xsettingsd,
-#                 and an X server and login screen if there are none); builds
-#                 clipmenu 7 and fetches the adw-gtk3 GTK theme, which aren't
-#                 packaged. Arch and Fedora: the README's package list
+#   1. packages   everything a fresh system needs, with sudo, on Debian/Ubuntu,
+#                 Arch and Fedora: where Quickshell 0.3 comes from (Debian 13:
+#                 trixie-backports; Fedora: the errornointernet/quickshell
+#                 COPR), a refresh (Arch: pacman -Syu), then the full list
+#                 (the shell, sound, network, fonts, icons, kitty, qt5ct/qt6ct,
+#                 xsettingsd, and an X server and LightDM, enabled, if there's
+#                 no login screen). Builds clipmenu 7 (no distro has it) and,
+#                 where they aren't packaged, xwallpaper and adw-gtk3
 #   2. location   the shell at ~/.config/quickshell/revenant: nothing to do if
 #                 you cloned it there; otherwise a copy of this folder, which a
 #                 later run updates (git pull here, then run this again)
@@ -85,7 +86,8 @@ run() {   # show a command, then run it (or only show it on a dry run)
     if (( dry )); then say "${dim}would run: $*${off}"; else say "${dim}\$ $*${off}"; "$@"; fi
 }
 
-. /etc/os-release 2>/dev/null || true
+# REVENANT_OS_RELEASE: another os-release file, to try other distros' branches.
+. "${REVENANT_OS_RELEASE:-/etc/os-release}" 2>/dev/null || true
 printf '\n%sRevenant%s %s· i3 desktop shell installer%s\n' "$bold" "$off" "$dim" "$off"
 mode="asks before each step"
 (( yes )) && mode="answering yes to everything"
@@ -95,13 +97,17 @@ printf '%s%s · %s%s\n' "$dim" "${PRETTY_NAME:-${ID:-unknown system}}" "$mode" "
 # ─── 1. packages ───────────────────────────────────────────────────────────
 step "Packages"
 ids=" ${ID:-} ${ID_LIKE:-} "
-pkgs=() mgr=() missing=() quickshell_hint="" apt=0
+# Per distro: the install command (mgr), an optional refresh, the packages,
+# the X server and login screen for a bare system, and a hint for when
+# Quickshell is missing or too old. Every list was checked against the
+# distro's own package index; names a release lacks are dropped (apt,
+# pacman) or skipped (dnf) rather than failing the whole install.
+fam="" pkgs=() mgr=() refresh=() xorg_pkgs=() dm_pkgs=() missing=() quickshell_hint=""
 case "$ids" in
     *" debian "*|*" ubuntu "*)
-        apt=1
+        fam=apt
         mgr=(sudo apt-get install -y -q)
-        # Everything a fresh install needs. Names a release lacks are dropped
-        # below (after apt-get update), so one list serves Debian and Ubuntu.
+        refresh=(sudo apt-get update -q)
         pkgs=(
             # the shell, and the programs it runs
             quickshell i3 xclip xdotool maim imagemagick xwallpaper jq x11-xserver-utils
@@ -114,30 +120,66 @@ case "$ids" in
             fonts-cascadia-code fonts-noto-color-emoji papirus-icon-theme fontconfig
             # what the theme hooks recolour, and the tools they use
             kitty qt5ct qt6ct xsettingsd libglib2.0-bin libgtk-3-bin
-            # to build clipmenu (below) and unpack adw-gtk3: neither is packaged
+            # to build clipmenu and unpack adw-gtk3 (below): neither is packaged
             git build-essential libx11-dev libxfixes-dev xz-utils
         )
         # power-profiles-daemon conflicts with tlp: apt would remove it.
         dpkg -s tlp >/dev/null 2>&1 || pkgs+=(power-profiles-daemon)
-        # A bare system: an X server, and a login screen if there's none.
-        [[ -x /usr/lib/xorg/Xorg || -x /usr/bin/Xorg ]] || pkgs+=(xserver-xorg xinit)
-        [[ -s /etc/X11/default-display-manager ]] || pkgs+=(lightdm lightdm-gtk-greeter)
-        quickshell_hint="Your release doesn't package quickshell yet: build it from https://quickshell.org (0.3 or newer)." ;;
+        xorg_pkgs=(xserver-xorg xinit) dm_pkgs=(lightdm lightdm-gtk-greeter)
+        quickshell_hint="If your release has no Quickshell 0.3, build it from https://quickshell.org." ;;
     *" arch "*)
+        fam=pacman
         mgr=(sudo pacman -S --needed --noconfirm)
-        pkgs=(i3-wm clipmenu xclip xdotool maim imagemagick xwallpaper jq xorg-xset xorg-xrandr libnotify
-              xdg-utils networkmanager pipewire-pulse python-xlib python-gobject noto-fonts-emoji)
-        quickshell_hint="Quickshell is in the AUR: e.g. 'paru -S quickshell' or 'yay -S quickshell'." ;;
+        # Arch doesn't support partial upgrades: sync and upgrade together.
+        refresh=(sudo pacman -Syu --noconfirm)
+        pkgs=(
+            quickshell i3-wm xclip xdotool maim imagemagick xwallpaper jq xorg-xset xorg-xrandr
+            xorg-xinput libnotify xdg-utils curl python python-xlib python-gobject qt6-declarative
+            networkmanager pipewire pipewire-pulse wireplumber libpulse bluez bluez-utils upower
+            brightnessctl lm_sensors cava dex
+            ttf-cascadia-code-nerd noto-fonts-emoji papirus-icon-theme fontconfig
+            kitty qt5ct qt6ct xsettingsd glib2 gtk3 adw-gtk-theme
+            # Arch's clipmenu is 6.x; version 7 is built below
+            git base-devel libx11 libxfixes xz
+        )
+        pacman -Q tlp >/dev/null 2>&1 || pkgs+=(power-profiles-daemon)
+        xorg_pkgs=(xorg-server xorg-xinit) dm_pkgs=(lightdm lightdm-gtk-greeter)
+        quickshell_hint="Quickshell is in Arch's extra repository: 'sudo pacman -Syu quickshell'." ;;
     *" fedora "*)
-        mgr=(sudo dnf install -y)
-        pkgs=(i3 clipmenu xclip xdotool maim ImageMagick xwallpaper jq xset xrandr libnotify xdg-utils
-              NetworkManager pipewire-pulseaudio python3-xlib python3-gobject google-noto-color-emoji-fonts)
-        quickshell_hint="Quickshell comes from a COPR: 'sudo dnf copr enable errornointernet/quickshell && sudo dnf install quickshell'." ;;
+        fam=dnf
+        # --skip-unavailable: a release without one of these still gets the rest.
+        mgr=(sudo dnf install -y --skip-unavailable)
+        pkgs=(
+            quickshell i3 xclip xdotool maim ImageMagick jq xset xrandr xinput libnotify xdg-utils
+            curl python3 python3-xlib python3-gobject qt6-qtdeclarative
+            NetworkManager pipewire pipewire-pulseaudio wireplumber pulseaudio-utils bluez upower
+            brightnessctl lm_sensors cava dex-autostart
+            cascadia-code-nf-fonts google-noto-color-emoji-fonts papirus-icon-theme fontconfig
+            kitty qt5ct qt6ct xsettingsd glib2 gtk3 adw-gtk3-theme
+            # to build clipmenu and xwallpaper (below): Fedora packages neither
+            git gcc make xz libX11-devel libXfixes-devel pixman-devel libxcb-devel xcb-util-devel
+            xcb-util-image-devel libpng-devel libjpeg-turbo-devel libXpm-devel
+        )
+        # Fedora's power profiles come from tuned-ppd; it conflicts with tlp
+        # and power-profiles-daemon, so leave either of those alone.
+        rpm -q tlp >/dev/null 2>&1 || rpm -q power-profiles-daemon >/dev/null 2>&1 || pkgs+=(tuned-ppd)
+        xorg_pkgs=(xorg-x11-server-Xorg xorg-x11-xinit) dm_pkgs=(lightdm lightdm-gtk)
+        quickshell_hint="Fedora's own quickshell is older than 0.3: use the COPR, 'sudo dnf copr enable errornointernet/quickshell && sudo dnf upgrade quickshell'." ;;
 esac
 
-if (( packages && apt )); then
-    # Debian 13 has quickshell only in backports.
-    if [[ ${ID:-} == debian && -n ${VERSION_CODENAME:-} ]]; then
+# A bare system: an X server, and a login screen if none is set up.
+add_dm=0
+if [[ -n $fam ]]; then
+    [[ -x /usr/lib/xorg/Xorg || -x /usr/bin/Xorg || -x /usr/libexec/Xorg ]] || pkgs+=("${xorg_pkgs[@]}")
+    if [[ ! -e /etc/systemd/system/display-manager.service && ! -s /etc/X11/default-display-manager ]]; then
+        pkgs+=("${dm_pkgs[@]}")
+        add_dm=1
+    fi
+fi
+
+if (( packages )) && [[ -n $fam ]]; then
+    # Where Quickshell 0.3 comes from outside the main repositories.
+    if [[ $fam == apt && ${ID:-} == debian && -n ${VERSION_CODENAME:-} ]]; then
         bpo="${VERSION_CODENAME}-backports"
         sources="$(cat /etc/apt/sources.list /etc/apt/sources.list.d/* 2>/dev/null || true)"
         if [[ $sources == *"$bpo"* ]]; then
@@ -150,72 +192,182 @@ if (( packages && apt )); then
                     && ok "Enabled ($bpo in /etc/apt/sources.list.d/$bpo.list)."
             fi
         fi
+    elif [[ $fam == dnf ]]; then
+        copr="errornointernet/quickshell"
+        if compgen -G "/etc/yum.repos.d/*errornointernet*quickshell*.repo" >/dev/null; then
+            ok "The $copr COPR is enabled."
+        else
+            say "Fedora's own Quickshell is older than 0.3; the $copr COPR has the current release."
+            if ask "Enable the $copr COPR?"; then
+                # `dnf copr` is a plugin: dnf5-plugins (dnf-plugins-core before Fedora 41).
+                dnf copr --help >/dev/null 2>&1 \
+                    || run sudo dnf install -y -q dnf5-plugins \
+                    || run sudo dnf install -y -q dnf-plugins-core || true
+                if run sudo dnf copr enable -y "$copr"; then ok "COPR enabled."
+                else warn "Couldn't enable the $copr COPR (see above)."; fi
+            fi
+        fi
     fi
-    if ask "Refresh the package lists?"; then
-        if run sudo apt-get update -q; then ok "Package lists refreshed."
-        else warn "apt-get update failed: the package lists may be out of date."; fi
+
+    if (( ${#refresh[@]} )); then
+        if [[ $fam == pacman ]]; then
+            say "Arch installs from an up-to-date package database only, so this upgrades the system first."
+            prompt="Sync and upgrade the system (pacman -Syu)?"
+        else
+            prompt="Refresh the package lists?"
+        fi
+        if ask "$prompt"; then
+            if run "${refresh[@]}"; then ok "Package lists are up to date."
+            else warn "The refresh failed: the package lists may be out of date."; fi
+        fi
     fi
-    # apt-get installs nothing if one name is unknown: drop those.
-    found=() missing=()
-    for p in "${pkgs[@]}"; do
-        if apt-cache show "$p" >/dev/null 2>&1; then found+=("$p"); else missing+=("$p"); fi
-    done
-    pkgs=("${found[@]}")
+
+    # apt-get and pacman install nothing if one name is unknown: drop those.
+    if [[ $fam == apt || $fam == pacman ]]; then
+        found=() missing=()
+        for p in "${pkgs[@]}"; do
+            if [[ $fam == apt ]]; then apt-cache show "$p" >/dev/null 2>&1
+            else pacman -Si "$p" >/dev/null 2>&1; fi && found+=("$p") || missing+=("$p")
+        done
+        pkgs=("${found[@]}")
+    fi
     # Backports' quickshell needs a newer libpipewire than main's
     # pipewire-pulse accepts: then take the whole set from backports where it
     # has them. Captured, not piped into grep -q (see the fc-list note below).
-    qs_policy="$(LC_ALL=C apt-cache policy quickshell 2>/dev/null || true)"
-    if [[ ${ID:-} == debian && -n ${VERSION_CODENAME:-} && $qs_policy == *"Candidate: "*"~bpo"* ]]; then
-        mgr+=(-t "${VERSION_CODENAME}-backports")
+    if [[ $fam == apt && ${ID:-} == debian && -n ${VERSION_CODENAME:-} ]]; then
+        qs_policy="$(LC_ALL=C apt-cache policy quickshell 2>/dev/null || true)"
+        [[ $qs_policy == *"Candidate: "*"~bpo"* ]] && mgr+=(-t "${VERSION_CODENAME}-backports")
     fi
 fi
 
 if (( ! packages )); then
     say "Skipped (--no-packages)."
-elif (( ${#pkgs[@]} == 0 )); then
+elif [[ -z $fam ]]; then
     warn "Unknown distro (${ID:-?}): install the packages in the README's Requirements by hand."
+elif (( ${#pkgs[@]} == 0 )); then
+    warn "None of the packages are in your package lists: refresh them (answer yes above), then run this again."
 else
     say "${#pkgs[@]} packages:"
     wrap "${pkgs[*]}"
     (( ${#missing[@]} )) && say "Not in your package lists, so left out: ${missing[*]}"
     if ask "Install them?"; then
-        if run "${mgr[@]}" "${pkgs[@]}"; then ok "Packages installed."
-        else fail "The package step failed (see above); the other steps still run."; fi
+        if run "${mgr[@]}" "${pkgs[@]}"; then
+            ok "Packages installed."
+            if (( add_dm )) && ! (( dry )); then
+                # Debian enables a newly installed login screen itself; Arch
+                # and Fedora don't, and a minimal install boots to a console.
+                if run sudo systemctl enable lightdm && run sudo systemctl set-default graphical.target; then
+                    ok "LightDM is enabled: the next boot shows a login screen."
+                else
+                    warn "Couldn't enable LightDM: run 'sudo systemctl enable lightdm' and 'sudo systemctl set-default graphical.target'."
+                fi
+            fi
+        else
+            fail "The package step failed (see above); the other steps still run."
+        fi
+    fi
+fi
+
+# Services the shell talks to. Debian and Fedora enable them when they're
+# installed; Arch leaves that to you. NetworkManager only if nothing else
+# manages the network, since two network managers fight over it.
+if (( packages )) && [[ -n $fam ]] && command -v systemctl >/dev/null; then
+    services=()
+    [[ $(systemctl is-enabled bluetooth.service 2>/dev/null) == disabled ]] && services+=(bluetooth)
+    if [[ $(systemctl is-enabled NetworkManager.service 2>/dev/null) == disabled ]]; then
+        other=""
+        for unit in systemd-networkd dhcpcd iwd connman netctl; do
+            systemctl is-active --quiet "$unit" 2>/dev/null && { other=$unit; break; }
+        done
+        if [[ -n $other ]]; then
+            say "NetworkManager isn't enabled: $other manages your network, so it's left as it is (the shell's Wi-Fi and network panels need NetworkManager)."
+        else
+            services+=(NetworkManager)
+        fi
+    fi
+    if (( ${#services[@]} )); then
+        say "Installed but not enabled: ${services[*]} (Bluetooth and network panels need them)."
+        if ask "Enable and start them?"; then
+            if run sudo systemctl enable --now "${services[@]/%/.service}"; then ok "Enabled: ${services[*]}."
+            else warn "Couldn't enable ${services[*]}: run 'sudo systemctl enable --now ${services[*]/%/.service}'."; fi
+        fi
     fi
 fi
 if ! command -v qs >/dev/null; then
     if (( dry )); then say "Quickshell isn't installed yet (the package step installs it)."
     else warn "Quickshell (qs) isn't installed. $quickshell_hint"; fi
+else
+    # Revenant needs 0.3. Captured and matched with sed, not piped into
+    # grep|head (see the fc-list note below).
+    qs_version="$(qs --version 2>/dev/null | sed -nE '1s/^[Qq]uickshell v?([0-9]+(\.[0-9]+)+).*/\1/p' || true)"
+    if [[ -z $qs_version ]]; then
+        say "Couldn't read Quickshell's version; Revenant needs 0.3 or newer."
+    elif [[ $(sort -V <<<"0.3"$'\n'"$qs_version" | sed -n 1p) == 0.3 ]]; then
+        ok "Quickshell $qs_version is installed."
+    else
+        warn "Quickshell $qs_version is too old: Revenant needs 0.3 or newer. $quickshell_hint"
+    fi
 fi
 
-# clipmenu 7 (text clipboard history) isn't packaged on Debian/Ubuntu.
-if (( packages )) && ! command -v clipmenud >/dev/null; then
-    cm="${XDG_CACHE_HOME:-$HOME/.cache}/$name/clipmenu"
-    say "clipmenu 7 (clipboard history) isn't packaged here: it is built from github.com/cdown/clipmenu."
-    if ask "Build and install clipmenu?"; then
+build_root="${XDG_CACHE_HOME:-$HOME/.cache}/$name"
+
+# clipmenu 7 (text clipboard history): no distro packages it (Arch's is the
+# older 6.x shell script), so build it. Version 7 is a compiled program.
+clipmenud_path="$(command -v clipmenud || true)"
+clip_old=0
+[[ -n $clipmenud_path && $(head -c2 "$clipmenud_path" 2>/dev/null) == '#!' ]] && clip_old=1
+if (( packages )) && [[ -z $clipmenud_path ]] || (( packages && clip_old )); then
+    cm="$build_root/clipmenu"
+    if (( clip_old )); then
+        say "$clipmenud_path is clipmenu 6 (a shell script); the clipboard panel needs clipmenu 7."
+    else
+        say "clipmenu 7 (clipboard history) isn't packaged here: it is built from github.com/cdown/clipmenu."
+    fi
+    if ask "Build and install clipmenu 7 into /usr/local?"; then
         if (( dry )); then
             say "${dim}would clone or update $(t "$cm"), run make, then sudo make install${off}"
         elif ! command -v make >/dev/null || ! command -v git >/dev/null; then
-            warn "Building clipmenu needs git and make (build-essential): install them, then run this again."
+            warn "Building clipmenu needs git and make: install them, then run this again."
         else
             if { if [[ -d $cm/.git ]]; then git -C "$cm" pull -q --ff-only
-                 else mkdir -p "${cm%/*}" && git clone -q --depth 1 https://github.com/cdown/clipmenu "$cm"; fi; } \
+                 else mkdir -p "$build_root" && git clone -q --depth 1 https://github.com/cdown/clipmenu "$cm"; fi; } \
                && make -s -C "$cm" && run sudo make -s -C "$cm" install; then
-                ok "clipmenu installed in /usr/local/bin."
+                ok "clipmenu 7 installed in /usr/local/bin."
             else
                 fail "Building clipmenu failed (see above): the clipboard's text history needs it."
             fi
         fi
     fi
 elif (( packages )); then
-    ok "clipmenu is installed."
+    ok "clipmenu 7 is installed."
+fi
+
+# xwallpaper (sets the wallpaper): Fedora doesn't package it, so build the
+# release, which ships a ready configure script.
+if (( packages )) && ! command -v xwallpaper >/dev/null; then
+    xw="$build_root/xwallpaper"
+    say "xwallpaper (sets the wallpaper) isn't packaged here: it is built from its release (github.com/stoeckmann/xwallpaper)."
+    if ask "Build and install xwallpaper into /usr/local?"; then
+        if (( dry )); then
+            say "${dim}would download the latest xwallpaper release, configure, make and sudo make install${off}"
+        else
+            url="$(curl -fsSL https://api.github.com/repos/stoeckmann/xwallpaper/releases/latest 2>/dev/null \
+                   | jq -r 'first(.assets[] | select(.name | endswith(".tar.xz")) | .browser_download_url) // empty' 2>/dev/null || true)"
+            if [[ -n $url ]] && rm -rf "$xw" && mkdir -p "$xw" && curl -fsSL "$url" | tar -xJ -C "$xw" --strip-components=1 \
+               && ( cd "$xw" && ./configure -q && make -s ) && run sudo make -s -C "$xw" install; then
+                ok "xwallpaper installed in /usr/local/bin (${url##*/})."
+            else
+                fail "Building xwallpaper failed (see above): the shell can't set a wallpaper without it."
+            fi
+        fi
+    fi
 fi
 
 # adw-gtk3: the GTK hook builds its themes on it (else GTK 3 apps stay plain
-# Adwaita). Debian and Ubuntu don't package it, so fetch the release.
+# Adwaita). Arch and Fedora package it; Debian and Ubuntu don't, so fetch it.
 gtk_themes="${XDG_DATA_HOME:-$HOME/.local/share}/themes"
 if (( packages )) && [[ ! -d $gtk_themes/adw-gtk3-dark && ! -d /usr/share/themes/adw-gtk3-dark ]]; then
-    say "The GTK theme hook builds on adw-gtk3, which isn't packaged here (github.com/lassekongo83/adw-gtk3)."
+    say "The GTK theme hook builds on adw-gtk3, which isn't installed (github.com/lassekongo83/adw-gtk3)."
     if ask "Download adw-gtk3 into ${gtk_themes/#$HOME/\~}?"; then
         if (( dry )); then
             say "${dim}would download the latest adw-gtk3 release${off}"
@@ -225,7 +377,7 @@ if (( packages )) && [[ ! -d $gtk_themes/adw-gtk3-dark && ! -d /usr/share/themes
             if [[ -n $url ]] && mkdir -p "$gtk_themes" && curl -fsSL "$url" | tar -xJ -C "$gtk_themes"; then
                 ok "adw-gtk3 installed (${url##*/})."
             else
-                warn "Couldn't download adw-gtk3 (needs curl, jq, xz and a network): GTK 3 apps get plain Adwaita colours until it's in $(t "$gtk_themes")."
+                warn "Couldn't download adw-gtk3 (needs curl, jq, xz and a network): GTK 3 apps get plain Adwaita colours until it's in $gtk_themes."
             fi
         fi
     fi
@@ -240,7 +392,7 @@ fonts="$(fc-list : family 2>/dev/null || true)"
 if [[ ${fonts,,} == *nerd* || $fonts =~ (^|[^[:alpha:]])NF[MP]?([^[:alpha:]]|$) ]]; then
     ok "A Nerd Font is installed (the bar's icons)."
 elif (( dry )); then
-    say "No Nerd Font yet (the package step installs Cascadia Code NF where it's packaged)."
+    say "No Nerd Font yet (the package step installs Cascadia Code NF)."
 else
     warn "No Nerd Font found: the bar's icons need one (e.g. Cascadia Code NF, or one from https://www.nerdfonts.com)."
 fi

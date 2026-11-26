@@ -23,6 +23,19 @@ c=()
 for v in "$@"; do c+=("#${v#\#}"); done
 read -r BG FG COMMENT SELECTION RED GREEN YELLOW BLUE MAUVE CYAN <<< "${c[*]}"
 
+# Signal every kitty of this user so it re-reads its config. Found by the
+# program it runs, not its name: a kitty started through a link (Debian's
+# x-terminal-emulator, which i3-sensible-terminal uses) is named after the
+# link, so `pkill -x kitty` misses it. Other users' /proc entries can't be
+# read, so only our own match.
+reload_kitty() {
+    local exe
+    while IFS= read -r exe; do
+        exe=${exe%/exe}
+        kill -USR1 "${exe##*/}" 2>/dev/null || true
+    done < <(find /proc -mindepth 2 -maxdepth 2 -name exe -lname '*/kitty' 2>/dev/null)
+}
+
 KITTY_DIR="${XDG_CONFIG_HOME:-$HOME/.config}/kitty"
 OUT="$KITTY_DIR/current-theme.conf"
 CONF="$KITTY_DIR/kitty.conf"
@@ -74,7 +87,7 @@ EOF
 
 # Unchanged: nothing to do (avoids recolouring every window at each login)
 if [[ -f $OUT && $(<"$OUT") == "$new" ]]; then
-    (( ${reload:-0} )) && { pkill -USR1 -x kitty 2>/dev/null || true; }
+    (( ${reload:-0} )) && reload_kitty
     exit 0
 fi
 
@@ -82,4 +95,4 @@ rm -f "$OUT"   # may be a symlink: write a real file rather than its target
 printf '%s\n' "$new" > "$OUT"
 
 # kitty re-reads its config (and so this include) on SIGUSR1
-pkill -USR1 -x kitty 2>/dev/null || true
+reload_kitty
