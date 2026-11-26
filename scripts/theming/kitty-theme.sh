@@ -6,8 +6,10 @@
 #        (hex, with or without a leading '#')
 #
 # kitty.conf must `include current-theme.conf` at its end (kitty is
-# last-value-wins). Windows are only signalled when the colours changed, so
-# re-applying the same theme does nothing visible.
+# last-value-wins): if it doesn't mention current-theme.conf at all, the line
+# is appended (and kitty.conf created if there is none). Windows are only
+# signalled when the colours changed, so re-applying the same theme does
+# nothing visible.
 
 set -euo pipefail
 
@@ -23,7 +25,20 @@ read -r BG FG COMMENT SELECTION RED GREEN YELLOW BLUE MAUVE CYAN <<< "${c[*]}"
 
 KITTY_DIR="${XDG_CONFIG_HOME:-$HOME/.config}/kitty"
 OUT="$KITTY_DIR/current-theme.conf"
+CONF="$KITTY_DIR/kitty.conf"
 mkdir -p "$KITTY_DIR"
+
+# Without the include, kitty never reads the file below. Any mention counts
+# (even commented out), so someone who removed it on purpose isn't overruled.
+included=0
+if [[ -f $CONF ]]; then
+    conf=$(<"$CONF")
+    [[ $conf == *current-theme.conf* ]] && included=1
+fi
+if (( ! included )); then
+    printf '\n# Colours from the active Revenant theme (rewritten on every theme switch).\ninclude current-theme.conf\n' >> "$CONF"
+    reload=1
+fi
 
 new=$(cat <<EOF
 # theme: $name (written by the shell's kitty-theme.sh)
@@ -58,7 +73,10 @@ EOF
 )
 
 # Unchanged: nothing to do (avoids recolouring every window at each login)
-[[ -f $OUT && $(<"$OUT") == "$new" ]] && exit 0
+if [[ -f $OUT && $(<"$OUT") == "$new" ]]; then
+    (( ${reload:-0} )) && { pkill -USR1 -x kitty 2>/dev/null || true; }
+    exit 0
+fi
 
 rm -f "$OUT"   # may be a symlink: write a real file rather than its target
 printf '%s\n' "$new" > "$OUT"

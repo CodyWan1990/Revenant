@@ -1,0 +1,40 @@
+# i3 config from Revenant's starter (install.sh copied it here). It's yours
+# now: Settings → Keybinds edits modules/keys/*.config, Settings → i3 Options
+# edits modules/window-options.config, and the rest is plain i3
+# (https://i3wm.org/docs/userguide.html).
+
+## ───── Mod key and workspaces ─────
+# Set here, before the modules that use them.
+set $mod Mod4
+set $ws1 "1"
+set $ws2 "2"
+set $ws3 "3"
+set $ws4 "4"
+set $ws5 "5"
+set $ws6 "6"
+set $ws7 "7"
+set $ws8 "8"
+set $ws9 "9"
+
+## ───── Autostart ─────
+# The shell: bar, launcher, notifications, tray, panels. `exec`, not
+# exec_always: it survives i3 restarts and reloads its own QML.
+exec --no-startup-id qs -c revenant
+# Clipboard history (text) for the clipboard panel.
+exec --no-startup-id sh -c 'pgrep -x clipmenud >/dev/null || exec clipmenud'
+# GTK apps take their theme from an XSETTINGS daemon; the GTK theme hook
+# writes its config and re-announces the theme on every switch.
+exec --no-startup-id sh -c 'pgrep -x xsettingsd >/dev/null || [ ! -f "${XDG_CONFIG_HOME:-$HOME/.config}/xsettingsd/xsettingsd.conf" ] || exec xsettingsd'
+# Apps from ~/.config/autostart (if dex is installed), once the shell's tray
+# is up: Electron apps only use a tray that exists when they start.
+exec --no-startup-id sh -c 'command -v dex >/dev/null || exit 0; for i in $(seq 50); do busctl --user status org.kde.StatusNotifierWatcher >/dev/null 2>&1 && break; sleep 0.1; done; exec dex --autostart --environment i3'
+
+## ───── Modules ─────
+include modules/keys.config
+include modules/window-options.config
+include modules/appearance.config
+# Window colours from the active theme (rewritten on every theme switch;
+# until the first one, appearance.config's colours apply).
+include ~/.config/revenant/i3-colors.config
+# The shell's window rules, after appearance so its `border none` wins.
+include ~/.config/quickshell/revenant/i3/revenant.config

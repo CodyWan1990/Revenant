@@ -53,7 +53,7 @@ refresh, and `i3-msg` commands out.
 
 | | Packages (names differ a little between releases) |
 |---|---|
-| Debian / Ubuntu | `quickshell i3 clipmenu xclip xdotool maim imagemagick xwallpaper jq x11-xserver-utils libnotify-bin xdg-utils network-manager pipewire-pulse python3-xlib python3-gi fonts-noto-color-emoji` |
+| Debian / Ubuntu | `quickshell` (Debian 13: from `trixie-backports`), `clipmenu` (not packaged: build from [source](https://github.com/cdown/clipmenu)), `i3 xclip xdotool maim imagemagick xwallpaper jq x11-xserver-utils libnotify-bin xdg-utils network-manager pipewire-pulse python3-xlib python3-gi fonts-noto-color-emoji qml6-module-qt-labs-folderlistmodel qml6-module-qtquick-effects` |
 | Arch | `quickshell` (AUR), `i3-wm clipmenu xclip xdotool maim imagemagick xwallpaper jq xorg-xset xorg-xrandr libnotify xdg-utils networkmanager pipewire-pulse python-xlib python-gobject noto-fonts-emoji` |
 | Fedora | `quickshell` (COPR), `i3 clipmenu xclip xdotool maim ImageMagick xwallpaper jq xset xrandr libnotify xdg-utils NetworkManager pipewire-pulseaudio python3-xlib python3-gobject google-noto-color-emoji-fonts` |
 
@@ -61,7 +61,7 @@ Optional — each feature hides or says what's missing without them:
 `cava` (audio visualiser), `brightnessctl`, `power-profiles-daemon`,
 `headsetcontrol`, `dex` (XDG autostart), `flatpak` / `snap` (update counts),
 a polkit agent such as polkit-gnome or lxpolkit (when the shell isn't the
-agent), kitty (themed if `~/.config/kitty` exists).
+agent), kitty (themed whenever it is installed).
 
 ## Install
 
@@ -71,16 +71,28 @@ git clone @REPO_URL@ ~/Projects/revenant
 ```
 
 `install.sh` asks before each step, and running it again changes nothing:
-1. the packages above, with `sudo` (Debian/Ubuntu, Arch, Fedora; it says
-   where to get Quickshell if your distro doesn't ship it)
+1. packages, with `sudo`. On Debian/Ubuntu it sets up a fresh system
+   completely: it enables Debian's backports (Quickshell is only there on
+   Debian 13), runs `apt-get update` and installs the shell's packages plus
+   sound, network, Bluetooth, fonts, Papirus icons, kitty, qt5ct/qt6ct and
+   xsettingsd (and an X server and LightDM if there are none). It also
+   builds clipmenu 7 and downloads the adw-gtk3 GTK theme, which neither
+   distro packages. On Arch and Fedora it installs the table above.
 2. a copy of the clone in `~/.config/quickshell/revenant`, where the shell
    runs from (to update: `git pull` in the clone, then `install.sh` again;
    clone straight into `~/.config/quickshell/revenant` and `git pull` alone
    is enough)
-3. the i3 lines below, at the end of your i3 config between marker lines
-   (it keeps a backup, and puts the file back if `i3 -C` rejects it)
-4. advice on two optional session variables (it edits no login file: the
-   shell applies its session settings and wallpaper itself)
+3. i3: with no config yet (or only the one i3-config-wizard wrote), a
+   starter config from `i3/starter/` with the shell's keys, gaps and colours,
+   laid out the way Settings → Keybinds and i3 Options edit it. With your
+   own config, the i3 lines below at its end between marker lines. Either
+   way it keeps a backup, and puts it back if `i3 -C` rejects the result.
+   `--i3-starter` swaps your config for the starter one.
+4. `QS_ICON_THEME` and `QT_QPA_PLATFORMTHEME`, added to `~/.xsessionrc` on
+   Debian/Ubuntu (their login session reads it) or `~/.xprofile`, unless
+   your session files set them already
+5. the current theme (Dracula on a new install) applied once through the
+   theme hooks, so i3, kitty, GTK and Qt match from the first login
 
 It only points out polybar, dunst or an i3bar `bar { }` block; remove those
 yourself. `--yes` skips the questions, `--no-packages` the package step. A

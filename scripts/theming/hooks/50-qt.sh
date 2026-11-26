@@ -35,6 +35,9 @@ set_qt_key() {
 for ct in qt5ct qt6ct; do
     palette="$CFG/$ct/colors/x11-theme.conf"
     conf="$CFG/$ct/$ct.conf"
+    # Not installed and never set up: leave it alone.
+    command -v "$ct" >/dev/null || [[ -d $CFG/$ct ]] || continue
+    mkdir -p "$CFG/$ct/colors"
     [[ -f $conf ]] || printf '[Appearance]\n' > "$conf"
 
     palette_changed=0 conf_changed=0
